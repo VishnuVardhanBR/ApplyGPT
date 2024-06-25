@@ -1,0 +1,21 @@
+{
+	"name": "ApplyGPT",
+	"description": "To help you apply to jobs easier!",
+	"version": "1.0",
+	"manifest_version": 3,
+	"action": {
+	  "default_popup": "popup/popup.html",
+	  "default_icon": "images/applygpt.png"
+	},
+	"permissions": ["activeTab", "scripting", "storage"],
+	"background": {
+	  "service_worker": "background.js"
+	},
+	"content_scripts": [
+	  {
+		"matches": ["<all_urls>"],
+		"js": ["scripts/content.js"]
+	  }
+	],
+	"options_page": "popup/settings.html"
+  }
