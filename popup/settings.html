@@ -2,35 +2,230 @@
 <html>
 	<head>
 		<title>Settings</title>
+		<style>
+			body {
+				background-color: black;
+				color: white;
+				font-family: "Arial", sans-serif;
+				font-size: 16px;
+				padding: 20px;
+				padding-left: 30%;
+				padding-right: 30%;
+				margin: 0;
+				box-sizing: border-box;
+				text-align: center;
+			}
+			h1 {
+				text-align: center;
+				font-size: 24px;
+				font-weight: bold;
+				margin-bottom: 20px;
+			}
+			.section {
+				margin-bottom: 20px;
+			}
+			.section h2 {
+				font-size: 20px;
+				margin-bottom: 10px;
+				font-weight: bold;
+			}
+			.entry {
+				margin-bottom: 10px;
+				display: flex;
+				flex-direction: column;
+			}
+			.entry label {
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+			input,
+			textarea,
+			select {
+				padding: 10px;
+				margin-bottom: 10px;
+				border-radius: 10px;
+				border: none;
+				font-size: 16px;
+				width: 100%;
+				box-sizing: border-box;
+			}
+			button {
+				background-color: white;
+				color: black;
+				border: none;
+				padding: 15px 30px;
+				margin: 10px 0;
+				font-size: 18px;
+				font-weight: bold;
+				border-radius: 30px;
+				cursor: pointer;
+				transition: background-color 0.3s, color 0.3s, transform 0.3s;
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			button:hover {
+				background-color: black;
+				color: white;
+				border: 2px solid white;
+				transform: scale(1.05);
+			}
+			.loading {
+				display: none;
+				margin-top: 20px;
+			}
+			.container {
+				--uib-size: 40px;
+				--uib-color: white;
+				--uib-speed: 1.4s;
+				--uib-bg-opacity: 0.1;
+				height: var(--uib-size);
+				width: var(--uib-size);
+				transform-origin: center;
+				overflow: visible;
+			}
+			.car {
+				fill: none;
+				stroke: var(--uib-color);
+				stroke-dasharray: 15, 85;
+				stroke-dashoffset: 0;
+				stroke-linecap: round;
+				animation: travel var(--uib-speed) linear infinite;
+				will-change: stroke-dasharray, stroke-dashoffset;
+				transition: stroke 0.5s ease;
+			}
+			.track {
+				stroke: var(--uib-color);
+				opacity: var(--uib-bg-opacity);
+				transition: stroke 0.5s ease;
+			}
+			@keyframes travel {
+				0% {
+					stroke-dashoffset: 0;
+				}
+				100% {
+					stroke-dashoffset: -100;
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Job Applicant Details</h1>
+		<h1>Your Details</h1>
+		<br />
 		<form id="settingsForm">
-			<label for="name">Name:</label>
-			<input type="text" id="name" name="name" /><br /><br />
+			<div class="section">
+				<h2>Personal Information</h2>
+				<br />
 
-			<label for="email">Email:</label>
-			<input type="email" id="email" name="email" /><br /><br />
-
-			<label for="phone">Phone Number:</label>
-			<input type="tel" id="phone" name="phone" /><br /><br />
-
-			<label for="address">Address:</label>
-			<input type="text" id="address" name="address" /><br /><br />
-
-			<label for="linkedin">LinkedIn URL:</label>
-			<input type="url" id="linkedin" name="linkedin" /><br /><br />
-
-			<label for="github">GitHub URL:</label>
-			<input type="url" id="github" name="github" /><br /><br />
-
-			<label for="resume">Resume:</label>
-			<input type="file" id="resume" name="resume" /><br /><br />
-
-			<label for="coverLetter">Cover Letter:</label>
-			<textarea id="coverLetter" name="coverLetter"></textarea><br /><br />
-
+				<div class="entry">
+					<label for="name">Name:</label>
+					<input type="text" id="name" name="name" />
+				</div>
+				<div class="entry">
+					<label for="familyName">Family Name:</label>
+					<input type="text" id="familyName" name="familyName" />
+				</div>
+				<div class="entry">
+					<label for="email">Email:</label>
+					<input type="email" id="email" name="email" />
+				</div>
+				<div class="entry">
+					<label for="phone">Phone Number:</label>
+					<input type="tel" id="phone" name="phone" />
+				</div>
+				<div class="entry">
+					<label for="address1">Address Line 1:</label>
+					<input type="text" id="address1" name="address1" />
+				</div>
+				<div class="entry">
+					<label for="address2">Address Line 2:</label>
+					<input type="text" id="address2" name="address2" />
+				</div>
+				<div class="entry">
+					<label for="city">City:</label>
+					<input type="text" id="city" name="city" />
+				</div>
+				<div class="entry">
+					<label for="state">State:</label>
+					<input type="text" id="state" name="state" />
+				</div>
+				<div class="entry">
+					<label for="postalCode">Postal Code:</label>
+					<input type="text" id="postalCode" name="postalCode" />
+				</div>
+				<div class="entry">
+					<label for="country">Country:</label>
+					<input type="text" id="country" name="country" />
+				</div>
+			</div>
+			<div class="section">
+				<h2>Work Experience</h2>
+				<div id="workExperienceContainer"></div>
+				<button type="button" id="addWorkExperience">
+					Add Another Work Experience
+				</button>
+			</div>
+			<div class="section">
+				<h2>Education</h2>
+				<div id="educationContainer"></div>
+				<button type="button" id="addEducation">Add Another Education</button>
+			</div>
+			<div class="section">
+				<h2>Skills</h2>
+				<div class="entry">
+					<label for="skills">Skills (separate with commas):</label>
+					<input type="text" id="skills" name="skills" />
+				</div>
+			</div>
+			<div class="section">
+				<h2>Portfolio</h2>
+				<div class="entry">
+					<label for="portfolio">Portfolio Website:</label>
+					<input type="url" id="portfolio" name="portfolio" />
+				</div>
+			</div>
+			<div class="section">
+				<h2>Resume</h2>
+				<div class="entry">
+					<label for="resume">Resume:</label>
+					<input type="file" id="resume" name="resume" />
+				</div>
+			</div>
+			<div class="section">
+				<h2>Cover Letter</h2>
+				<div class="entry">
+					<label for="coverLetter">Cover Letter:</label>
+					<textarea id="coverLetter" name="coverLetter"></textarea>
+				</div>
+			</div>
 			<button type="button" id="saveSettings">Save</button>
+			<div class="loading" id="loadingIcon">
+				<svg
+					class="container"
+					x="0px"
+					y="0px"
+					viewBox="0 0 40 40"
+					height="40"
+					width="40"
+					preserveAspectRatio="xMidYMid meet"
+				>
+					<path
+						class="track"
+						fill="none"
+						stroke-width="4"
+						pathLength="100"
+						d="M20,2 A18,18 0 1,1 19.999,2 Z"
+					></path>
+					<path
+						class="car"
+						fill="none"
+						stroke-width="4"
+						pathLength="100"
+						d="M20,2 A18,18 0 1,1 19.999,2 Z"
+					></path>
+				</svg>
+			</div>
 		</form>
 
 		<script src="settings.js"></script>

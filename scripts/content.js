@@ -1,41 +1,29 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'gatherForms') {
-        const forms = document.querySelectorAll('form');
-        const formDetails = Array.from(forms).map((form, index) => {
-            const elements = form.elements;
-            const details = Array.from(elements).map(el => {
-                const label = el.labels && el.labels.length > 0 ? el.labels[0].innerText : '';
-                return {
-                    tagName: el.tagName,
-                    type: el.type,
-                    name: el.name,
-                    id: el.id,
-                    label: label,
-                    value: el.value,
-                };
-            });
-            return { formId: form.id || `form${index}`, details };
+    if (message.action === 'gatherInputs') {
+        const inputs = document.querySelectorAll('input, textarea');
+        const inputDetails = Array.from(inputs).map(input => {
+            const label = input.labels && input.labels.length > 0 ? input.labels[0].innerText : '';
+            return {
+                tagName: input.tagName,
+                type: input.type,
+                name: input.name,
+                id: input.id,
+                label: label,
+                value: input.value,
+            };
         });
-        console.log('Form Details:', formDetails);
-        chrome.runtime.sendMessage({ action: 'filterForms', formDetails }, response => {
-            if (response && response.filledForms) {
-                response.filledForms.forEach(formMapping => {
-                    const form = document.getElementById(formMapping.formId);
-                    if (form) {
-                        Object.keys(formMapping.mapping).forEach(fieldId => {
-                            const fieldValue = formMapping.mapping[fieldId];
-                            if (fieldValue) {
-                                const element = form.querySelector(`#${fieldId}`);
-                                if (element) {
-                                    element.value = fieldValue;
-                                    element.dispatchEvent(new Event('change', { bubbles: true }));
-                                }
-                            }
-                        });
+        console.log('Input Details:', inputDetails);
+        chrome.runtime.sendMessage({ action: 'filterInputs', inputDetails }, response => {
+            if (response && response.filledInputs) {
+                response.filledInputs.forEach(inputMapping => {
+                    const input = document.querySelector(`#${inputMapping.id}`);
+                    if (input) {
+                        input.value = inputMapping.value;
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 });
             } else {
-                console.error('Error: No filled forms returned');
+                console.error('Error: No filled inputs returned');
             }
             sendResponse({ status: 'success' });
         });

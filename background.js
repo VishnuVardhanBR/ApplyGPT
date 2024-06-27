@@ -1,75 +1,43 @@
+const apiKey = '';
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'filterForms') {
-        const formDetails = message.formDetails;
-        console.log('Received form details:', formDetails);
+    if (message.action === 'filterInputs') {
+        const inputDetails = message.inputDetails;
+        console.log('Received input details:', inputDetails);
 
-        const systemPromptFilter = `You are a helpful assistant who helps to filter out forms. You will be provided a JSON array of forms available on a website. Filter the given forms and retain only those that ask for job applicant information such as name, email, phone number, resume, cover letter, etc. Ignore any other forms. Return the output in the following JSON format, do not provide any explanation:
+        const systemPromptFilter = `You are a helpful assistant who helps to filter out input fields. You will be provided a JSON array of input elements available on a website. Filter the given inputs and retain only those that ask for job applicant information such as name, family name, email, phone number, address, resume, cover letter, etc. Ignore any other inputs. Return the output in the following JSON format, do not provide any explanation:
         [
             {
-                "formId": "form1",
-                "inputs": [
-                    {
-                        "tagName": "INPUT",
-                        "label": "Name:",
-                        "type": "text",
-                        "name": "name",
-                        "id": "name"
-                    },
-                    {
-                        "tagName": "INPUT",
-                        "label": "Email:",
-                        "type": "email",
-                        "name": "email",
-                        "id": "email"
-                    },
-                    {
-                        "tagName": "INPUT",
-                        "label": "Phone Number:",
-                        "type": "tel",
-                        "name": "phone",
-                        "id": "phone"
-                    },
-                    {
-                        "tagName": "INPUT",
-                        "label": "Resume URL:",
-                        "type": "url",
-                        "name": "resume",
-                        "id": "resume"
-                    },
-                    {
-                        "tagName": "TEXTAREA",
-                        "label": "Cover Letter:",
-                        "type": "textarea",
-                        "name": "coverLetter",
-                        "id": "coverLetter"
-                    }
-                ]
-            }
+                "id": "input1",
+                "label": "Name",
+                "type": "text",
+                "name": "name"
+            },
+            ...
         ]`;
 
-        filterFormsWithOpenAI(formDetails, systemPromptFilter)
-            .then(filteredForms => {
-                console.log('Filtered Forms:', filteredForms);
+        filterInputsWithOpenAI(inputDetails, systemPromptFilter)
+            .then(filteredInputs => {
+                console.log('Filtered Inputs:', filteredInputs);
                 return getCandidateInfo()
                     .then(candidateInfo => {
                         console.log('Candidate Info:', candidateInfo);
-                        return fillFormsWithCandidateInfo(filteredForms, candidateInfo);
+                        return fillInputsWithCandidateInfo(filteredInputs, candidateInfo);
                     })
-                    .then(filledForms => {
-                        console.log('Filled Forms:', filledForms);
-                        sendResponse({ filledForms });
+                    .then(filledInputs => {
+                        console.log('Filled Inputs:', filledInputs);
+                        sendResponse({ filledInputs });
                     });
             })
             .catch(error => {
-                console.error('Error filtering forms:', error);
+                console.error('Error filtering inputs:', error);
                 sendResponse({ error: error.message });
             });
     }
     return true; // Keep the message channel open for async response
 });
 
-async function filterFormsWithOpenAI(formDetails, systemPrompt) {
+async function filterInputsWithOpenAI(inputDetails, systemPrompt) {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -80,7 +48,7 @@ async function filterFormsWithOpenAI(formDetails, systemPrompt) {
             model: 'gpt-3.5-turbo',
             messages: [
                 { role: 'system', content: systemPrompt },
-                { role: 'user', content: `${JSON.stringify(formDetails)}` }
+                { role: 'user', content: `${JSON.stringify(inputDetails)}` }
             ],
             max_tokens: 500,
             temperature: 0.5
@@ -88,36 +56,35 @@ async function filterFormsWithOpenAI(formDetails, systemPrompt) {
     });
 
     const data = await response.json();
-    const filteredFormsText = data.choices[0].message.content.trim();
-    const cleanedText = filteredFormsText.replace(/^```json|```$/g, '').trim();
-    console.log('Filtered Forms Text:', cleanedText);
-    const filteredForms = JSON.parse(cleanedText);
-    return filteredForms;
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+        throw new Error('Invalid response from OpenAI API');
+    }
+
+    const filteredInputsText = data.choices[0].message.content.trim();
+    const cleanedText = filteredInputsText.replace(/^```json|```$/g, '').trim();
+    console.log('Filtered Inputs Text:', cleanedText);
+    const filteredInputs = JSON.parse(cleanedText);
+    return filteredInputs;
 }
 
 async function getCandidateInfo() {
     return new Promise((resolve) => {
-        chrome.storage.sync.get(['name', 'email', 'phone', 'resume', 'coverLetter'], (data) => {
+        chrome.storage.sync.get(['name', 'familyName', 'email', 'phone', 'address1', 'address2', 'city', 'state', 'postalCode', 'country', 'skills', 'portfolio', 'coverLetter', 'workExperience', 'education', 'resumeData'], (data) => {
             resolve(data);
         });
     });
 }
 
-async function fillFormsWithCandidateInfo(filteredForms, candidateInfo) {
-    const systemPromptFill = `You are a helpful assistant who matches form fields available with the details you are provided with. Match the filtered form fields with the candidate info provided. Make it so that you use the id of the element as the key. Use the following format for output:
+async function fillInputsWithCandidateInfo(filteredInputs, candidateInfo) {
+    const systemPromptFill = `You are a helpful assistant who matches input fields available with the details you are provided with. Match the filtered input fields with the candidate info provided. Make it so that you use the id of the element as the key. Use the following format for output:
     [
       {
-        "formId": "form1",
-        "mapping": {
-          "name": "John Doe",
-          "email": "john.doe@example.com",
-          "phone": "123-456-7890",
-          "resume": "http://example.com/resume.pdf",
-          "coverLetter": "I am very interested in this job..."
-        }
-      }
+        "id": "input1",
+        "value": "John Doe"
+      },
+      ...
     ]
-    If we don't have information for a field, leave it empty. Here is the filtered form details and candidate info.`;
+    If we don't have information for a field, leave it empty. Here is the filtered input details and candidate info.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -129,7 +96,7 @@ async function fillFormsWithCandidateInfo(filteredForms, candidateInfo) {
             model: 'gpt-3.5-turbo',
             messages: [
                 { role: 'system', content: systemPromptFill },
-                { role: 'user', content: `Filtered Form Details: ${JSON.stringify(filteredForms)}\n\nCandidate Info: ${JSON.stringify(candidateInfo)}` }
+                { role: 'user', content: `Filtered Input Details: ${JSON.stringify(filteredInputs)}\n\nCandidate Info: ${JSON.stringify(candidateInfo)}` }
             ],
             max_tokens: 500,
             temperature: 0.5
@@ -137,9 +104,13 @@ async function fillFormsWithCandidateInfo(filteredForms, candidateInfo) {
     });
 
     const data = await response.json();
-    const filledFormsText = data.choices[0].message.content.trim();
-    const cleanedText = filledFormsText.replace(/^```json|```$/g, '').trim();
-    console.log('Filled Forms Text:', cleanedText);
-    const filledForms = JSON.parse(cleanedText);
-    return filledForms;
+    let filledInputsText = data.choices[0].message.content.trim();
+    filledInputsText = filledInputsText.replace(/^```json|```$/g, '').trim();
+
+    // Ensure proper JSON formatting by removing trailing commas
+    filledInputsText = filledInputsText.replace(/,(\s*})/g, '$1').replace(/,(\s*\])/g, '$1');
+
+    console.log('Filled Inputs Text:', filledInputsText);
+    const filledInputs = JSON.parse(filledInputsText);
+    return filledInputs;
 }

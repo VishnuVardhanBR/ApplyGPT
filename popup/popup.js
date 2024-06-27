@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const loadingIcon = document.getElementById('loadingIcon');
+    
     document.getElementById('activate').addEventListener('click', () => {
+        loadingIcon.style.display = 'block'; // Show loading icon
+        
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             chrome.scripting.executeScript(
                 {
@@ -7,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     files: ['scripts/content.js']
                 },
                 () => {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'gatherForms' }, (response) => {
+                    chrome.tabs.sendMessage(tabs[0].id, { action: 'gatherInputs' }, (response) => {
+                        loadingIcon.style.display = 'none'; // Hide loading icon
+                        
                         if (chrome.runtime.lastError) {
                             console.error('Runtime Error:', chrome.runtime.lastError.message);
                         } else {
