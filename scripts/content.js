@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 tagName: input.tagName,
                 type: input.type,
                 name: input.name,
-                id: input.id,
+                id: input.id || input.name, // Use name as fallback if id is empty
                 label: label,
                 value: input.value,
             };
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         chrome.runtime.sendMessage({ action: 'filterInputs', inputDetails }, response => {
             if (response && response.filledInputs) {
                 response.filledInputs.forEach(inputMapping => {
-                    const input = document.querySelector(`#${inputMapping.id}`);
+                    const input = document.querySelector(`#${inputMapping.id}`) || document.querySelector(`[name="${inputMapping.name}"]`);
                     if (input) {
                         input.value = inputMapping.value;
                         input.dispatchEvent(new Event('change', { bubbles: true }));

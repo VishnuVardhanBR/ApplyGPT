@@ -1,17 +1,18 @@
 const apiKey = '';
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'filterInputs') {
         const inputDetails = message.inputDetails;
         console.log('Received input details:', inputDetails);
 
-        const systemPromptFilter = `You are a helpful assistant who helps to filter out input fields. You will be provided a JSON array of input elements available on a website. Filter the given inputs and retain only those that ask for job applicant information such as name, family name, email, phone number, address, resume, cover letter, etc. Ignore any other inputs. Return the output in the following JSON format, do not provide any explanation:
+        const systemPromptFilter = `You are a helpful assistant who helps to filter out input fields. You will be provided a JSON array of input elements available on a website. 
+        Filter the given inputs and retain only those that ask for job applicant information such as name, family name, email, phone number, address, resume, cover letter, etc. But keep in mind that this is not a restrictive list. Have high consideration and include inputs which are relavant. 
+        Ignore any other inputs. Return the output in the following JSON format, do not provide any explanation:
         [
             {
                 "id": "input1",
+                "name": "input1",
                 "label": "Name",
-                "type": "text",
-                "name": "name"
+                "type": "text"
             },
             ...
         ]`;
@@ -76,10 +77,11 @@ async function getCandidateInfo() {
 }
 
 async function fillInputsWithCandidateInfo(filteredInputs, candidateInfo) {
-    const systemPromptFill = `You are a helpful assistant who matches input fields available with the details you are provided with. Match the filtered input fields with the candidate info provided. Make it so that you use the id of the element as the key. Use the following format for output:
+    const systemPromptFill = `You are a helpful assistant who matches input fields available with the details you are provided with. Match the filtered input fields with the candidate info provided. Make it so that you use the id of the element as the key, and fallback to name if id is empty. Use the following format for output:
     [
       {
         "id": "input1",
+        "name": "input1",
         "value": "John Doe"
       },
       ...
