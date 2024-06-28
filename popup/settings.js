@@ -36,15 +36,15 @@ function addWorkExperience(work = {}) {
     const workEntry = document.createElement('div');
     workEntry.classList.add('entry');
     workEntry.innerHTML = `
-        <label>Job Title:</label>
+        <label>job title</label>
         <input type="text" name="jobTitle" value="${work.jobTitle || ''}">
-        <label>Company:</label>
+        <label>company</label>
         <input type="text" name="company" value="${work.company || ''}">
-        <label>Start Date:</label>
+        <label>start date</label>
         <input type="date" name="startDate" value="${work.startDate || ''}">
-        <label>End Date:</label>
+        <label>end date</label>
         <input type="date" name="endDate" value="${work.endDate || ''}">
-        <button type="button" class="removeButton">Remove</button>
+        <button type="button" class="removeButton" style="background-color: gray; color: black; border: 1px">remove</button>
     `;
     container.appendChild(workEntry);
     workEntry.querySelector('.removeButton').addEventListener('click', () => {
@@ -60,15 +60,15 @@ function addEducation(edu = {}) {
     const eduEntry = document.createElement('div');
     eduEntry.classList.add('entry');
     eduEntry.innerHTML = `
-        <label>School Name:</label>
+        <label>school name</label>
         <input type="text" name="schoolName" value="${edu.schoolName || ''}">
-        <label>Degree:</label>
+        <label>degree</label>
         <input type="text" name="degree" value="${edu.degree || ''}">
-        <label>Start Date:</label>
+        <label>start date</label>
         <input type="date" name="eduStartDate" value="${edu.eduStartDate || ''}">
-        <label>End Date:</label>
+        <label>end date</label>
         <input type="date" name="eduEndDate" value="${edu.eduEndDate || ''}">
-        <button type="button" class="removeButton">Remove</button>
+        <button type="button" class="removeButton" style="background-color: gray; color: black; border: 1px">remove</button>
     `;
     container.appendChild(eduEntry);
     eduEntry.querySelector('.removeButton').addEventListener('click', () => {
@@ -111,7 +111,7 @@ function saveDetails() {
     const resumeFile = document.getElementById('resume').files[0];
     if (resumeFile) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const resumeData = e.target.result;
             chrome.storage.sync.set({ name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeData }, () => {
                 showSaveSuccess();
@@ -127,11 +127,11 @@ function saveDetails() {
 
 function showSaveSuccess() {
     const saveButton = document.getElementById('saveSettings');
-    saveButton.innerHTML = 'Saved!';
+    saveButton.innerHTML = 'saved!';
     saveButton.style.backgroundColor = 'green';
     saveButton.style.color = 'white';
     setTimeout(() => {
-        saveButton.innerHTML = 'Save';
+        saveButton.innerHTML = 'save';
         saveButton.style.backgroundColor = 'white';
         saveButton.style.color = 'black';
     }, 2000);
