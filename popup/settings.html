@@ -26,11 +26,15 @@
 				background-color: #1c1c1c;
 				box-shadow: 0px 0px 8px 10px #1c1c1c;
 			}
+
 			h1,
 			h2 {
 				color: white;
 				font-weight: bolder;
 				padding-left: 5px;
+				background: -webkit-linear-gradient(#eee, #333);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
 			}
 			.entry label {
 				display: block;
@@ -65,7 +69,7 @@
 				box-shadow: 0px 6px 10px 5px black;
 			}
 			button:hover {
-				background-color: black;
+				background-color: #1c1c1c;
 				color: white;
 				border: 2px solid white;
 			}
@@ -124,6 +128,12 @@
 					stroke-dashoffset: -100;
 				}
 			}
+			#apiKeyLabel {
+				font-size: 36px;
+				background: -webkit-linear-gradient(#eee, #333);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+			}
 		</style>
 	</head>
 	<body>
@@ -156,6 +166,12 @@
 		<h1>your info ( ͡° ͜ʖ ͡°)</h1>
 		<form id="settingsForm">
 			<div class="section animated-section">
+				<div class="section animated-section">
+					<div class="entry">
+						<label id="apiKeyLabel" for="apiKey">openai api key</label>
+						<input type="text" id="apiKey" name="apiKey" placeholder="sk-" />
+					</div>
+				</div>
 				<h2>personal info.</h2>
 				<div class="entry">
 					<label for="name">name</label>
@@ -230,7 +246,7 @@
 						class="custom-file-upload"
 						style="text-align: center"
 					>
-						upload!
+						upload
 					</label>
 					<input type="file" id="resume" name="resume" />
 				</div>
@@ -246,7 +262,7 @@
 				id="saveSettings"
 				style="font-size: medium; margin-left: auto"
 			>
-				save
+				save!
 			</button>
 		</form>
 

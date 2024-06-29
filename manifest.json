@@ -5,7 +5,7 @@
 	"manifest_version": 3,
 	"action": {
 	  "default_popup": "popup/popup.html",
-	  "default_icon": "images/applygpt.png"
+	  "default_icon": "images/logo.png"
 	},
 	"permissions": ["activeTab", "scripting", "storage"],
 	"background": {

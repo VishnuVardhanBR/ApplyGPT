@@ -21,7 +21,7 @@ function loadSavedDetails() {
         document.getElementById('skills').value = data.skills || '';
         document.getElementById('portfolio').value = data.portfolio || '';
         document.getElementById('coverLetter').value = data.coverLetter || '';
-
+        document.getElementById('apiKey').value = data.apiKey || '';
         if (data.workExperience) {
             data.workExperience.forEach(work => addWorkExperience(work));
         }
@@ -93,6 +93,7 @@ function saveDetails() {
     const skills = document.getElementById('skills').value;
     const portfolio = document.getElementById('portfolio').value;
     const coverLetter = document.getElementById('coverLetter').value;
+    const apiKey = document.getElementById('apiKey').value;
 
     const workExperience = Array.from(document.querySelectorAll('#workExperienceContainer .entry')).map(entry => ({
         jobTitle: entry.querySelector('[name="jobTitle"]').value,
@@ -113,13 +114,13 @@ function saveDetails() {
         const reader = new FileReader();
         reader.onload = function (e) {
             const resumeData = e.target.result;
-            chrome.storage.sync.set({ name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeData }, () => {
+            chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeData }, () => {
                 showSaveSuccess();
             });
         };
         reader.readAsDataURL(resumeFile);
     } else {
-        chrome.storage.sync.set({ name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education }, () => {
+        chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education }, () => {
             showSaveSuccess();
         });
     }

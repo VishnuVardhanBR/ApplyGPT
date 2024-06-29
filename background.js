@@ -1,9 +1,13 @@
-const apiKey = '';
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'filterInputs') {
         const inputDetails = message.inputDetails;
         console.log('Received input details:', inputDetails);
-
+        chrome.storage.sync.get('apiKey', (data) => {
+            const apiKey = data.apiKey;
+            if (!apiKey) {
+                sendResponse({ error: 'No API Key provided.' });
+                return;
+            }
         const systemPromptFilter = `You are a helpful assistant who helps to filter out input fields. You will be provided a JSON array of input elements available on a website. 
         Filter the given inputs and retain only those that ask for job applicant information such as name, family name, email, phone number, address, resume, cover letter, etc. But keep in mind that this is not a restrictive list. Have high consideration and include inputs which are relavant. 
         Ignore any other inputs. Return the output in the following JSON format, do not provide any explanation:
@@ -34,6 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 console.error('Error filtering inputs:', error);
                 sendResponse({ error: error.message });
             });
+        });
     }
     return true; // Keep the message channel open for async response
 });
