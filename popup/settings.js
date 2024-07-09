@@ -28,6 +28,7 @@ function loadSavedDetails() {
         if (data.education) {
             data.education.forEach(edu => addEducation(edu));
         }
+        document.getElementById('resumeContent').value = data.resumeContent || '';
     });
 }
 
@@ -94,6 +95,7 @@ function saveDetails() {
     const portfolio = document.getElementById('portfolio').value;
     const coverLetter = document.getElementById('coverLetter').value;
     const apiKey = document.getElementById('apiKey').value;
+    const resumeContent = document.getElementById('resumeContent').value;
 
     const workExperience = Array.from(document.querySelectorAll('#workExperienceContainer .entry')).map(entry => ({
         jobTitle: entry.querySelector('[name="jobTitle"]').value,
@@ -109,21 +111,12 @@ function saveDetails() {
         eduEndDate: entry.querySelector('[name="eduEndDate"]').value,
     }));
 
-    const resumeFile = document.getElementById('resume').files[0];
-    if (resumeFile) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const resumeData = e.target.result;
-            chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeData }, () => {
-                showSaveSuccess();
-            });
-        };
-        reader.readAsDataURL(resumeFile);
-    } else {
-        chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education }, () => {
-            showSaveSuccess();
-        });
-    }
+    
+   
+    chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeContent }, () => {
+        showSaveSuccess();
+    });
+    
 }
 
 function showSaveSuccess() {

@@ -1,66 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const car = document.getElementById('car');
-
-    document.getElementById('activate').addEventListener('click', () => {
-        car.style.display = 'block'; // Show car
-        
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            chrome.scripting.executeScript(
-                {
-                    target: { tabId: tabs[0].id },
-                    files: ['scripts/content.js']
-                },
-                () => {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'gatherInputs' }, (response) => {
-                        car.style.display = 'none'; // Hide car
-                        
-                        if (chrome.runtime.lastError) {
-                            console.error('Runtime Error:', chrome.runtime.lastError.message);
-                        } else {
-                            console.log('Response:', response);
-                        }
-                    });
-                }
-            );
+    const activateButton = document.getElementById('activate');
+    const settingsButton = document.getElementById('settings');
+    const loadingIcon = document.getElementById('car');
+    const messageDiv = document.getElementById('message');
+  
+    activateButton.addEventListener('click', async () => {
+      try {
+        activateButton.disabled = true;
+        loadingIcon.style.display = 'block';
+        messageDiv.textContent = '';
+        messageDiv.className = '';
+  
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['scripts/content.js']
         });
-    });
-
-    document.getElementById('settings').addEventListener('click', () => {
-        chrome.runtime.openOptionsPage();
-    });
-});
-document.getElementById('activate').addEventListener('click', () => {
-    chrome.storage.sync.get(null, (data) => {
-        const { apiKey, name, email, phone } = data;
-
-        if (!apiKey) {
-            alert('Please provide your OpenAI API Key in the settings.');
-            return;
+  
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'gatherAndFillInputs' });
+  
+        if (response.status === 'error') {
+          throw new Error(response.message);
         }
-
-        if (!name && !email && !phone) {
-            alert('Please fill in your details in the settings.');
-            return;
-        }
-
-        const car = document.getElementById('car');
-        car.style.display = 'block'; // Show car
-        
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            chrome.scripting.executeScript(
-                {
-                    target: { tabId: tabs[0].id },
-                    files: ['scripts/content.js']
-                },
-                () => {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'gatherInputs' }, (response) => {
-                        car.style.display = 'none'; // Hide car       
-                        if (chrome.runtime.lastError) {
-                            console.error('Runtime Error:', chrome.runtime.lastError.message);
-                        } 
-                    });
-                }
-            );
-        });
+  
+        messageDiv.textContent = response.message;
+        messageDiv.className = 'success';
+      } catch (error) {
+        console.error('Error:', error);
+        messageDiv.textContent = `Error: ${error.message}`;
+        messageDiv.className = 'error';
+      } finally {
+        activateButton.disabled = false;
+        loadingIcon.style.display = 'none';
+      }
     });
-});
+  
+    settingsButton.addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+    });
+  });
