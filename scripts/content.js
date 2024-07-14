@@ -2,8 +2,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'gatherAndFillInputs') {
     gatherAndFillInputs()
       .then(result => sendResponse(result))
-      .catch(error => sendResponse({ status: 'error', message: "error :(" }));
-    return true; // Indicates we will send a response asynchronously
+      .catch(error => sendResponse({ status: 'error', message: error.message }));
+    return true; 
   }
 });
 

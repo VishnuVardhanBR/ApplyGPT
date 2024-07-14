@@ -1,91 +1,138 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>ApplyGPT</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: "Arial", sans-serif;
-            font-size: 16px;
-            padding: 20px;
-            margin: 0;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        button {
-            background-color: white;
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            margin: 10px 0;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 30px;
-            border: 2px solid white;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        button:hover {
-            background-color: #1c1c1c;
-            color: white;
-            border: 2px solid white;
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .loading {
-            margin-top: 20px;
-        }
-        .container {
-            --uib-size: 40px;
-            --uib-color: white;
-            --uib-speed: 1.4s;
-            --uib-bg-opacity: 0.1;
-            height: var(--uib-size);
-            width: var(--uib-size);
-            transform-origin: center;
-            overflow: visible;
-        }
-        .car {
-            fill: none;
-            stroke: var(--uib-color);
-            stroke-dasharray: 15, 85;
-            stroke-dashoffset: 0;
-            stroke-linecap: round;
-            animation: travel var(--uib-speed) linear infinite;
-            will-change: stroke-dasharray, stroke-dashoffset;
-            transition: stroke 0.5s ease;
-        }
-        .track {
-            stroke: var(--uib-color);
-            opacity: var(--uib-bg-opacity);
-            transition: stroke 0.5s ease;
-        }
-        @keyframes travel {
-            0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: -100; }
-        }
-        #message {
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <button id="activate">Activate</button>
-    <button id="settings">Settings</button>
-    <div class="loading" id="loadingIcon" >
-        <svg class="container" x="0px" y="0px" viewBox="0 0 40 40" height="40" width="40" preserveAspectRatio="xMidYMid meet">
-            <path id="track" class="track" fill="none" stroke-width="4" pathLength="100" d="M29.760000000000005 18.72 c0 7.28 -3.9200000000000004 13.600000000000001 -9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.840000000000002 2.64 c -3.6 0 -6.88 -0.96 -9.76 -2.64 c0 -7.28 3.9200000000000004 -13.52 9.840000000000002 -16.96 c2.8800000000000003 -1.6800000000000002 6.24 -2.64 9.76 -2.64 S26.880000000000003 17.040000000000003 29.760000000000005 18.72 c5.84 3.3600000000000003 9.76 9.68 9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.76 2.64 c -3.6 0 -6.88 -0.96 -9.840000000000002 -2.64 c -5.84 -3.3600000000000003 -9.76 -9.68 -9.76 -16.96 c0 -7.28 3.9200000000000004 -13.600000000000001 9.76 -16.96 C25.84 5.120000000000001 29.760000000000005 11.440000000000001 29.760000000000005 18.72z"></path>
-            <path id="car" class="car" style="display: none;" fill="none" stroke-width="4" pathLength="100" d="M29.760000000000005 18.72 c0 7.28 -3.9200000000000004 13.600000000000001 -9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.840000000000002 2.64 c -3.6 0 -6.88 -0.96 -9.76 -2.64 c0 -7.28 3.9200000000000004 -13.52 9.840000000000002 -16.96 c2.8800000000000003 -1.6800000000000002 6.24 -2.64 9.76 -2.64 S26.880000000000003 17.040000000000003 29.760000000000005 18.72 c5.84 3.3600000000000003 9.76 9.68 9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.76 2.64 c -3.6 0 -6.88 -0.96 -9.840000000000002 -2.64 c -5.84 -3.3600000000000003 -9.76 -9.68 -9.76 -16.96 c0 -7.28 3.9200000000000004 -13.600000000000001 9.76 -16.96 C25.84 5.120000000000001 29.760000000000005 11.440000000000001 29.760000000000005 18.72z"></path>
-        </svg>
-    </div>
-    <div id="message"></div>
-    <script src="popup.js"></script>
-</body>
+	<head>
+		<title>ApplyGPT</title>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+                font-family: "Arial", sans-serif;
+                font-size: 16px;
+                padding: 20px;
+                margin: 0;
+                width: 300px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            button {
+                background-color: white;
+                color: black;
+                border: none;
+                padding: 15px 30px;
+                margin: 10px 0;
+                font-size: 18px;
+                font-weight: bold;
+                border-radius: 30px;
+                border: 2px solid white;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+            }
+            button:hover {
+                background-color: #1c1c1c;
+                color: white;
+                border: 2px solid white;
+            }
+            button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            .loading {
+                margin-top: 20px;
+            }
+            .container {
+                --uib-size: 40px;
+                --uib-color: white;
+                --uib-speed: 1.4s;
+                --uib-bg-opacity: 0.1;
+                height: var(--uib-size);
+                width: var(--uib-size);
+                transform-origin: center;
+                overflow: visible;
+            }
+            .car {
+                fill: none;
+                stroke: var(--uib-color);
+                stroke-dasharray: 15, 85;
+                stroke-dashoffset: 0;
+                stroke-linecap: round;
+                animation: travel var(--uib-speed) linear infinite;
+                will-change: stroke-dasharray, stroke-dashoffset;
+                transition: stroke 0.5s ease;
+            }
+            .track {
+                stroke: var(--uib-color);
+                opacity: var(--uib-bg-opacity);
+                transition: stroke 0.5s ease;
+            }
+            @keyframes travel {
+                0% { stroke-dashoffset: 0; }
+                100% { stroke-dashoffset: -100; }
+            }
+            #message {
+                margin-top: 20px;
+                text-align: center;
+                font-weight: bold;
+            }
+    
+            h1 {
+                font-size: 36px;
+                font-weight: 900;
+                background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+                background-size: 400% 400%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: gradient 15s ease infinite;
+            }
+    
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+        </style>
+	</head>
+	<body>
+		<h1>ApplyGPT</h1>
+
+		<button id="activate">Activate</button>
+		<button id="settings">Settings</button>
+		<div class="loading" id="loadingIcon">
+			<svg
+				class="container"
+				x="0px"
+				y="0px"
+				viewBox="0 0 40 40"
+				height="40"
+				width="40"
+				preserveAspectRatio="xMidYMid meet"
+			>
+				<path
+					id="track"
+					class="track"
+					fill="none"
+					stroke-width="4"
+					pathLength="100"
+					d="M29.760000000000005 18.72 c0 7.28 -3.9200000000000004 13.600000000000001 -9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.840000000000002 2.64 c -3.6 0 -6.88 -0.96 -9.76 -2.64 c0 -7.28 3.9200000000000004 -13.52 9.840000000000002 -16.96 c2.8800000000000003 -1.6800000000000002 6.24 -2.64 9.76 -2.64 S26.880000000000003 17.040000000000003 29.760000000000005 18.72 c5.84 3.3600000000000003 9.76 9.68 9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.76 2.64 c -3.6 0 -6.88 -0.96 -9.840000000000002 -2.64 c -5.84 -3.3600000000000003 -9.76 -9.68 -9.76 -16.96 c0 -7.28 3.9200000000000004 -13.600000000000001 9.76 -16.96 C25.84 5.120000000000001 29.760000000000005 11.440000000000001 29.760000000000005 18.72z"
+				></path>
+				<path
+					id="car"
+					class="car"
+					style="display: none"
+					fill="none"
+					stroke-width="4"
+					pathLength="100"
+					d="M29.760000000000005 18.72 c0 7.28 -3.9200000000000004 13.600000000000001 -9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.840000000000002 2.64 c -3.6 0 -6.88 -0.96 -9.76 -2.64 c0 -7.28 3.9200000000000004 -13.52 9.840000000000002 -16.96 c2.8800000000000003 -1.6800000000000002 6.24 -2.64 9.76 -2.64 S26.880000000000003 17.040000000000003 29.760000000000005 18.72 c5.84 3.3600000000000003 9.76 9.68 9.840000000000002 16.96 c -2.8800000000000003 1.6800000000000002 -6.24 2.64 -9.76 2.64 c -3.6 0 -6.88 -0.96 -9.840000000000002 -2.64 c -5.84 -3.3600000000000003 -9.76 -9.68 -9.76 -16.96 c0 -7.28 3.9200000000000004 -13.600000000000001 9.76 -16.96 C25.84 5.120000000000001 29.760000000000005 11.440000000000001 29.760000000000005 18.72z"
+				></path>
+			</svg>
+		</div>
+		<div id="message"></div>
+		<script src="popup.js"></script>
+	</body>
 </html>

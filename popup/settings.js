@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadSavedDetails() {
-    chrome.storage.sync.get(null, (data) => {
+    chrome.storage.local.get(null, (data) => {
         document.getElementById('name').value = data.name || '';
         document.getElementById('familyName').value = data.familyName || '';
         document.getElementById('email').value = data.email || '';
@@ -20,7 +20,6 @@ function loadSavedDetails() {
         document.getElementById('country').value = data.country || '';
         document.getElementById('skills').value = data.skills || '';
         document.getElementById('portfolio').value = data.portfolio || '';
-        document.getElementById('coverLetter').value = data.coverLetter || '';
         document.getElementById('apiKey').value = data.apiKey || '';
         if (data.workExperience) {
             data.workExperience.forEach(work => addWorkExperience(work));
@@ -93,7 +92,6 @@ function saveDetails() {
     const country = document.getElementById('country').value;
     const skills = document.getElementById('skills').value;
     const portfolio = document.getElementById('portfolio').value;
-    const coverLetter = document.getElementById('coverLetter').value;
     const apiKey = document.getElementById('apiKey').value;
     const resumeContent = document.getElementById('resumeContent').value;
 
@@ -111,12 +109,12 @@ function saveDetails() {
         eduEndDate: entry.querySelector('[name="eduEndDate"]').value,
     }));
 
-    
-   
-    chrome.storage.sync.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, coverLetter, workExperience, education, resumeContent }, () => {
+
+
+    chrome.storage.local.set({ apiKey, name, familyName, email, phone, address1, address2, city, state, postalCode, country, skills, portfolio, workExperience, education, resumeContent }, () => {
         showSaveSuccess();
     });
-    
+
 }
 
 function showSaveSuccess() {

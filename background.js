@@ -1,24 +1,55 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'fillInputs') {
-        handleFillInputs(message.inputDetails)
-            .then(result => sendResponse(result))
-            .catch(error => sendResponse({ status: 'error', message: error.message }));
-        return true; // Indicates we will send a response asynchronously
+        handleFillInputs(message.inputDetails, sender.tab.id)
+            .then(result => {
+                chrome.runtime.sendMessage({ action: 'fillComplete', result });
+                sendResponse(result);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                chrome.runtime.sendMessage({ 
+                    action: 'fillError', 
+                    message: error.message.includes('API Key') || error.message.includes('candidate information')
+                        ? error.message
+                        : 'An unexpected error occurred. Please try again.'
+                });
+                sendResponse({ status: 'error', message: error.message });
+            });
+        return true;
     }
 });
 
-async function handleFillInputs(inputDetails) {
+async function handleFillInputs(inputDetails, tabId) {
+    const sendProgressUpdate = (step) => {
+        chrome.runtime.sendMessage({ action: 'progressUpdate', step });
+    };
+
     const apiKey = await getApiKey();
     if (!apiKey) {
         throw new Error('No API Key provided. Please add your OpenAI API key in the settings.');
     }
 
-    const filteredInputs = await filterInputsWithOpenAI(inputDetails, apiKey);
     const candidateInfo = await getCandidateInfo();
+    if (Object.keys(candidateInfo).length === 0) {
+        throw new Error('No candidate information found. Please fill in your details in the settings.');
+    }
+
+    sendProgressUpdate('Filtering relevant input fields...');
+    const filteredInputs = await filterInputsWithOpenAI(inputDetails, apiKey);
+
+    sendProgressUpdate('Generating input data...');
     const filledInputs = await fillInputsWithCandidateInfo(filteredInputs, candidateInfo, apiKey);
 
-    return { status: 'success', filledInputs, message: 'Inputs processed successfully.' };
+    sendProgressUpdate('Filling fields with your information...');
+
+    return { 
+        status: 'success', 
+        filledInputs, 
+        message: 'Inputs filled successfully.'
+    };
 }
+
+
 
 async function getApiKey() {
     return new Promise((resolve) => {
@@ -72,12 +103,11 @@ async function callOpenAI(systemPrompt, userContent, apiKey) {
             'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-3.5-turbo-0125',
             messages: [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userContent }
             ],
-            max_tokens: 500,
             temperature: 0.5
         })
     });
@@ -99,7 +129,7 @@ async function callOpenAI(systemPrompt, userContent, apiKey) {
 
 async function getCandidateInfo() {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(null, (data) => {
+        chrome.storage.local.get(null, (data) => {
             if (chrome.runtime.lastError) {
                 reject(new Error(`Failed to get candidate info: ${chrome.runtime.lastError.message}`));
             } else {
