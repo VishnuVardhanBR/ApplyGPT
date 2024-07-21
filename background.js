@@ -19,36 +19,48 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+let isProcessing = false;
+
 async function handleFillInputs(inputDetails, tabId) {
-    const sendProgressUpdate = (step) => {
-        chrome.runtime.sendMessage({ action: 'progressUpdate', step });
-    };
-
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-        throw new Error('No API Key provided. Please add your OpenAI API key in the settings.');
+    if (isProcessing) {
+        console.log('Already processing. Skipping duplicate request.');
+        return { status: 'skipped', message: 'Request already in progress.' };
     }
 
-    const candidateInfo = await getCandidateInfo();
-    if (Object.keys(candidateInfo).length === 0) {
-        throw new Error('No candidate information found. Please fill in your details in the settings.');
+    isProcessing = true;
+
+    try {
+        const sendProgressUpdate = (step) => {
+            chrome.runtime.sendMessage({ action: 'progressUpdate', step });
+        };
+
+        const apiKey = await getApiKey();
+        if (!apiKey) {
+            throw new Error('No API Key provided. Please add your OpenAI API key in the settings.');
+        }
+
+        const candidateInfo = await getCandidateInfo();
+        if (Object.keys(candidateInfo).length === 0) {
+            throw new Error('No candidate information found. Please fill in your details in the settings.');
+        }
+
+        sendProgressUpdate('Filtering relevant input fields...');
+        const filteredInputs = await filterInputsWithOpenAI(inputDetails, apiKey);
+
+        sendProgressUpdate('Generating input data...');
+        const filledInputs = await fillInputsWithCandidateInfo(filteredInputs, candidateInfo, apiKey);
+
+        sendProgressUpdate('Filling fields with your information...');
+
+        return { 
+            status: 'success', 
+            filledInputs, 
+            message: 'Inputs filled successfully. Activate again to fill more fields.'
+        };
+    } finally {
+        isProcessing = false;
     }
-
-    sendProgressUpdate('Filtering relevant input fields...');
-    const filteredInputs = await filterInputsWithOpenAI(inputDetails, apiKey);
-
-    sendProgressUpdate('Generating input data...');
-    const filledInputs = await fillInputsWithCandidateInfo(filteredInputs, candidateInfo, apiKey);
-
-    sendProgressUpdate('Filling fields with your information...');
-
-    return { 
-        status: 'success', 
-        filledInputs, 
-        message: 'Inputs filled successfully.'
-    };
 }
-
 
 
 async function getApiKey() {
